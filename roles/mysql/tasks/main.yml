@@ -6,12 +6,13 @@
   with_items:
     - mysql-server
     - python3-pip
+    - python3-mysqldb
 
-- name: Install pymysql
-  ansible.builtin.pip:
-    name: pymysql
-    state: present
-    
+#- name: Install pymysql
+#  ansible.builtin.pip:
+#    name: pymysql
+#    state: present
+
 #- name: Secure MySQL installation
 #  mysql_secure_installation:
 #    login_user: root
