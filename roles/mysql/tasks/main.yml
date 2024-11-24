@@ -5,7 +5,6 @@
     update_cache: yes
   with_items:
     - mysql-server
-    - mysqlclient
 
 #- name: Secure MySQL installation
 #  mysql_secure_installation:
