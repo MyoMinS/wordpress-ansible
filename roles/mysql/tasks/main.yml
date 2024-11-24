@@ -4,15 +4,15 @@
     state: present
     update_cache: yes
 
-- name: Secure MySQL installation
-  mysql_secure_installation:
-    login_user: root
-    login_password: ""
-    new_password: "{{ mysql_root_password }}"
-    validate_password_policy: LOW
-    remove_anonymous_users: yes
-    remove_test_db: yes
-    change_root_password: yes
+#- name: Secure MySQL installation
+#  mysql_secure_installation:
+#    login_user: root
+#    login_password: ""
+#    new_password: "{{ mysql_root_password }}"
+#    validate_password_policy: LOW
+#    remove_anonymous_users: yes
+#    remove_test_db: yes
+#    change_root_password: yes
 
 - name: Create WordPress database
   mysql_db:
