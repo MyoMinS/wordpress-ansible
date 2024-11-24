@@ -2,10 +2,14 @@
   apt:
     name:
       - php
-      - php-mysql
+      - php-bcmath
       - php-curl
-      - php-gd
-      - php-xml
+      - php-imagick
+      - php-intl
+      - php-json
       - php-mbstring
+      - php-mysql
+      - php-xml
+      - php-zip
     state: present
     update_cache: yes

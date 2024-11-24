@@ -1,24 +1,21 @@
 - name: Install Apache
   apt:
-    name: apache2
+    name: 
     state: present
     update_cache: yes
+  with_items:
+   - apache2
+   - ghostscript
+   - libapache2-mod-php
 
 - name: Enable Apache modules
   command: a2enmod rewrite
   notify: restart apache
 
 - name: Set up Apache VirtualHost
-  copy:
+  ansible.builtin.template:
+    src: apache2.conf.j2
     dest: /etc/apache2/sites-available/wordpress.conf
-    content: |
-      <VirtualHost *:80>
-          ServerAdmin {{ server_admin_email }}
-          DocumentRoot {{ wordpress_dir }}
-          <Directory {{ wordpress_dir }}>
-              AllowOverride All
-          </Directory>
-      </VirtualHost>
 
 - name: Enable WordPress site
   command: a2ensite wordpress
