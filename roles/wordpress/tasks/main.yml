@@ -1,7 +1,13 @@
+- name: File exit
+  ansible.builtin.stat:
+    path: /tmp/latest.tar.gz
+  register: st
+
 - name: Download WordPress
   get_url:
     url: "{{ wordpress_url }}"
     dest: /tmp/latest.tar.gz
+  when: st.state.islnk is not defined
 
 - name: Extract WordPress
   unarchive:
