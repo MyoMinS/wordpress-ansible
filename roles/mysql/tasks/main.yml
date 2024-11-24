@@ -1,0 +1,27 @@
+- name: Install MySQL
+  apt:
+    name: mysql-server
+    state: present
+    update_cache: yes
+
+- name: Secure MySQL installation
+  mysql_secure_installation:
+    login_user: root
+    login_password: ""
+    new_password: "{{ mysql_root_password }}"
+    validate_password_policy: LOW
+    remove_anonymous_users: yes
+    remove_test_db: yes
+    change_root_password: yes
+
+- name: Create WordPress database
+  mysql_db:
+    name: "{{ mysql_wordpress_db }}"
+    state: present
+
+- name: Create WordPress database user
+  mysql_user:
+    name: "{{ mysql_wordpress_user }}"
+    password: "{{ mysql_wordpress_password }}"
+    priv: "{{ mysql_wordpress_db }}.*:ALL"
+    state: present
