@@ -5,23 +5,7 @@
     update_cache: yes
   with_items:
     - mysql-server
-    - python3-pip
     - python3-mysqldb
-
-#- name: Install pymysql
-#  ansible.builtin.pip:
-#    name: pymysql
-#    state: present
-
-#- name: Secure MySQL installation
-#  mysql_secure_installation:
-#    login_user: root
-#    login_password: ""
-#    new_password: "{{ mysql_root_password }}"
-#    validate_password_policy: LOW
-#    remove_anonymous_users: yes
-#    remove_test_db: yes
-#    change_root_password: yes
 
 - name: Create WordPress database
   mysql_db:
