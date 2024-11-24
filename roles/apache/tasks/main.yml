@@ -15,7 +15,7 @@
 - name: Set up Apache VirtualHost
   ansible.builtin.template:
     src: apache2.conf.j2
-    dest: /etc/apache2/sites-available/wordpress.conf
+    dest: "/etc/apache2/sites-available/wordpress.conf"
 
 - name: Enable WordPress site
   command: a2ensite wordpress
