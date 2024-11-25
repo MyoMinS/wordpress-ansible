@@ -1,0 +1,39 @@
+---
+name: Build wordpress with Ansible
+
+env:
+    SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    SSH_USER: ${{ vars.SSH_USER }}
+    SSH_HOST: ${{ vars.SSH_HOST }}
+
+on:
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            
+            - name: Create SSH key
+              run: |
+                echo "$SSH_PRIVATE_KEY" > private.key
+                sudo chmod 400 private.key
+            
+            - name: Setup Ansible
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y ansible
+            
+            - name: Create Inventory file
+              run: |
+                echo "server ansible_host=$SSH_HOST ansible_user=$SSH_USER ansible_ssh_private_key_file=private.key" > inventory
+            
+            - name: Deploy with Ansible
+              run: |
+                ansible-playbook -i inventory \
+                --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
+                wordpress.yml
+            
+            

@@ -1,5 +1,5 @@
 - name: Install WordPress
-  hosts: localhost
+  hosts: server
   become: yes
   vars_files:
     - group_vars/all.yml
