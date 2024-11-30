@@ -8,7 +8,7 @@
     - nginx
 
 - name: Set Nginx conf file
-  ansible.builtin.tempfile:
+  ansible.builtin.template:
     src: nginx.conf.j2
     dest: "/etc/nginx/sites-available/{{ nginx_conf }}"
 
