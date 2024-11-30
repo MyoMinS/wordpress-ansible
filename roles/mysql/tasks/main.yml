@@ -20,14 +20,14 @@
 #    state: absent
 #    login_user: root
 #    login_password: "{{ mysql_root_password }}"
-
-- name: Removes the MySQL test database
-  mysql_db:
-    name: test
-    state: absent
-    login_user: root
-    login_password: "{{ mysql_root_password }}"     
-    
+#
+#- name: Removes the MySQL test database
+#  mysql_db:
+#    name: test
+#    state: absent
+#    login_user: root
+#    login_password: "{{ mysql_root_password }}"     
+#    
 - name: Create WordPress database
   mysql_db:
     name: "{{ mysql_wordpress_db }}"

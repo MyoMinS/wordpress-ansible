@@ -7,9 +7,7 @@ env:
     SSH_HOST: ${{ vars.SSH_HOST }}
 
 on:
-  push:
-    branches:
-      - main
+   workflow_dispatch:
 
 jobs:
     deploy:
