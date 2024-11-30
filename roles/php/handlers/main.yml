@@ -1,0 +1,21 @@
+---
+- name: start php
+  ansible.builtin.service:
+    name: "{{ php_version }}-{{ item }}"
+    state: started
+  with_items:
+    - php
+
+- name: reload php
+  ansible.builtin.service:
+    name: "{{ php_version }}-{{ item }}"
+    state: reloaded
+  with_items:
+    - php
+
+- name: restart php
+  ansible.builtin.service:
+    name: "{{ php_version }}-{{ item }}"
+    state: restarted
+  with_items:
+    - php

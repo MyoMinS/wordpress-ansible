@@ -5,7 +5,7 @@
     - group_vars/all.yml
 
   roles:
-    - apache
+    - nginx
     - mysql
     - php
     - wordpress

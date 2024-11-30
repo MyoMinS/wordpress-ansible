@@ -1,15 +1,51 @@
+---
+- name: Add PHP repo
+  ansible.builtin.apt_repository:
+    repo: ppa:ondrej/php
+
 - name: Install PHP and extensions
   apt:
-    name:
-      - php
-      - php-bcmath
-      - php-curl
-      - php-imagick
-      - php-intl
-      - php-json
-      - php-mbstring
-      - php-mysql
-      - php-xml
-      - php-zip
+    name: "{{ php_version }}"
     state: present
     update_cache: yes
+
+- name: Install PHP and extensions
+  apt:
+    name: "{{ php_version }}-{{ item }}"
+    state: present
+    update_cache: yes
+    with_items:
+      - "bcmath"
+      - "cli"
+      - "common"
+      - "curl"
+      - "fpm"
+      - "gd"
+      - "igbinary"
+      - "intl"
+      - "imagick"
+      - "mbstring"
+      - "mysql"
+      - "opcache"
+      - "redis"
+      - "soap"
+      - "xml"
+      - "xmlrpc"
+      - "xsl"
+      - "zip"
+      
+- name: Set PHP upload max filesize
+  lineinfile:
+    dest: /etc/php/{{ php_version }}/fpm/php.ini
+    regexp: "^upload_max_filesize"
+    line: "upload_max_filesize = 128M"
+    state: present
+  notify: reload php
+
+- name: Set PHP post max filesize
+  lineinfile:
+    dest: /etc/php/{{ php_version }}/fpm/php.ini
+    regexp: "^post_max_size"
+    line: "post_max_size = 128M"
+    state: present
+  notify: reload php
