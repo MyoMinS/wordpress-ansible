@@ -4,18 +4,18 @@
     name: "php{{ php_version }}-{{ item }}"
     state: started
   with_items:
-    - php
+    - fpm
 
 - name: reload php
   ansible.builtin.service:
     name: "php{{ php_version }}-{{ item }}"
     state: reloaded
   with_items:
-    - php
+    - fpm
 
 - name: restart php
   ansible.builtin.service:
     name: "php{{ php_version }}-{{ item }}"
     state: restarted
   with_items:
-    - php
+    - fpm
