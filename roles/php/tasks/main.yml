@@ -5,13 +5,13 @@
 
 - name: Install PHP and extensions
   apt:
-    name: "{{ php_version }}"
+    name: "php{{ php_version }}"
     state: present
     update_cache: yes
 
 - name: Install PHP and extensions
   apt:
-    name: "{{ php_version }}-{{ item }}"
+    name: "php{{ php_version }}-{{ item }}"
     state: present
     update_cache: yes
   with_items:
