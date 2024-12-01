@@ -1,4 +1,4 @@
-- name: File exit
+- name: latest.tar.gz File exit or not
   ansible.builtin.stat:
     path: /tmp/latest.tar.gz
   register: st
