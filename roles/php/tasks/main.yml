@@ -38,7 +38,7 @@
   lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^upload_max_filesize"
-    line: "upload_max_filesize = 128M"
+    line: "upload_max_filesize = 20M"
     state: present
   notify: reload php
 
@@ -46,6 +46,6 @@
   lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^post_max_size"
-    line: "post_max_size = 128M"
+    line: "post_max_size = 20M"
     state: present
   notify: reload php
