@@ -5,6 +5,10 @@ env:
     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     SSH_USER: ${{ vars.SSH_USER }}
     SSH_HOST: ${{ vars.SSH_HOST }}
+    DOMAIN_NAME : ${{ vars.DOMAIN_NAME }}
+    NGINX_PORT : ${{ vars.NGINX_PORT }}
+    PHP_VERSION : ${{ vars.PHP_VERSION }}
+    MYSQL_WORDPRESS_PASSWORD : ${{ vars.MYSQL_WORDPRESS_PASSWORD }}
 
 on:
    workflow_dispatch:
@@ -34,6 +38,10 @@ jobs:
               run: |
                 ansible-playbook -i inventory \
                 --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
+                --extra-vars "nginx_port=$NGINX_PORT" \
+                --extra-vars "domain_name=$DOMAIN_NAME" \
+                --extra-vars "php_version=$PHP_VERSION" \
+                --extra-vars "mysql_wordpress_password=$MYSQL_WORDPRESS_PASSWORD" \
                 wordpress.yml
-            
+
             
