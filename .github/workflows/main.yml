@@ -8,7 +8,9 @@ env:
     DOMAIN_NAME : ${{ vars.DOMAIN_NAME }}
     NGINX_PORT : ${{ vars.NGINX_PORT }}
     PHP_VERSION : ${{ vars.PHP_VERSION }}
-    MYSQL_WORDPRESS_PASSWORD : ${{ vars.MYSQL_WORDPRESS_PASSWORD }}
+    WORDPRESS_DB : ${{ vars.WORDPRESS_DB }}
+    WORDPRESS_USER : ${{ vars.WORDPRESS_USER }}
+    WORDPRESS_PASSWORD : ${{ vars.WORDPRESS_PASSWORD }}
 
 on:
    workflow_dispatch:
@@ -41,7 +43,9 @@ jobs:
                 --extra-vars "nginx_port=$NGINX_PORT" \
                 --extra-vars "domain_name=$DOMAIN_NAME" \
                 --extra-vars "php_version=$PHP_VERSION" \
-                --extra-vars "mysql_wordpress_password=$MYSQL_WORDPRESS_PASSWORD" \
+                --extra-vars "mysql_wordpress_db=$WORDPRESS_DB" \
+                --extra-vars "mysql_wordpress_user=$WORDPRESS_USER" \
+                --extra-vars "mysql_wordpress_password=$WORDPRESS_PASSWORD" \
                 wordpress.yml
 
             
