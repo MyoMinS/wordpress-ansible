@@ -21,24 +21,18 @@
     - "curl"
     - "fpm"
     - "gd"
-   # - "igbinary"
     - "intl"
     - "imagick"
     - "mbstring"
     - "mysql"
-   # - "opcache"
-   # - "redis"
-   # - "soap"
     - "xml"
-   # - "xmlrpc"
-   # - "xsl"
     - "zip"
       
 - name: Set PHP upload max filesize
   lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^upload_max_filesize"
-    line: "upload_max_filesize = 20M"
+    line: "upload_max_filesize = 50M"
     state: present
   notify: reload php
 
@@ -46,6 +40,6 @@
   lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^post_max_size"
-    line: "post_max_size = 20M"
+    line: "post_max_size = 50M"
     state: present
   notify: reload php

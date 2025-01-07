@@ -1,32 +1,5 @@
-- name: Install Apache
+- name: Uninstall Apache
   apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-   - apache2
-   - ghostscript
-   - libapache2-mod-php
-
-- name: Enable Apache modules
-  command: a2enmod rewrite
-  notify: restart apache
-
-- name: Set up Apache VirtualHost
-  ansible.builtin.template:
-    src: apache2.conf.j2
-    dest: "/etc/apache2/sites-available/wordpress.conf"
-
-- name: Enable WordPress site
-  command: a2ensite wordpress
-  notify: restart apache
-
-- name: Disable default site
-  command: a2dissite 000-default
-  notify: restart apache
-
-- name: Ensure Apache is running
-  service:
     name: apache2
-    state: started
-    enabled: yes
+    state: absent
+    update_cache: yes

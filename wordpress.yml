@@ -8,4 +8,5 @@
     - nginx
     - mysql
     - php
+    - apache
     - wordpress
