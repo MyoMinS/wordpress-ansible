@@ -1,5 +1,15 @@
+- name: Ensure Apache is not running
+  ansible.builtin.service:
+    name: apache2
+    state: stopped
+  #  enabled: no
+
 - name: Uninstall Apache
-  apt:
+  ansible.builtin.apt:
     name: apache2
     state: absent
     update_cache: yes
+  with_items:
+    - apache2
+    - apache2-data
+    - apache2-utils
