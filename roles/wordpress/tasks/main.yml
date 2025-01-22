@@ -1,33 +1,34 @@
-- name: latest.tar.gz File exit or not
+- name: Latest.tar.gz File exit or not
   ansible.builtin.stat:
     path: /tmp/latest.tar.gz
   register: st
 
 - name: Download WordPress
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ wordpress_url }}"
     dest: /tmp/latest.tar.gz
+    mode: "0755"
   when: st.state.islnk is not defined
 
 - name: Extract WordPress
-  unarchive:
+  ansible.builtin.unarchive:
     src: /tmp/latest.tar.gz
     dest: /var/www/html/
-    remote_src: yes
+    remote_src: true
 
 - name: Set permissions
-  file:
+  ansible.builtin.file:
     path: "{{ wordpress_dir }}"
     state: directory
     owner: www-data
     group: www-data
     mode: "0755"
-    recurse: yes
+    recurse: true
 
 - name: Create wp-config.php
-  template:
+  ansible.builtin.tempfile:
     src: wp-config.php.j2
     dest: "{{ wordpress_dir }}/wp-config.php"
     owner: www-data
     group: www-data
-    mode: "0644"
+    mode: '0644'

@@ -3,7 +3,7 @@
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   with_items:
     - nginx
 
@@ -11,6 +11,8 @@
   ansible.builtin.template:
     src: nginx.conf.j2
     dest: "/etc/nginx/sites-available/{{ nginx_conf }}"
+    mode: "0755"
+
 
 - name: Enable new site
   ansible.builtin.file:
@@ -19,10 +21,8 @@
     state: link
   notify: reload nginx
 
-- name: remove default site
+- name: Remove default site
   ansible.builtin.file:
     path: "/etc/nginx/sites-enabled/default"
     state: absent
   notify: reload nginx
-
-

@@ -4,16 +4,16 @@
     repo: ppa:ondrej/php
 
 - name: Install PHP and extensions
-  apt:
+  ansible.builtin.apt:
     name: "php{{ php_version }}"
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install PHP and extensions
-  apt:
+  ansible.builtin.apt:
     name: "php{{ php_version }}-{{ item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   with_items:
     - "bcmath"
     - "cli"
@@ -27,9 +27,9 @@
     - "mysql"
     - "xml"
     - "zip"
-      
+
 - name: Set PHP upload max filesize
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^upload_max_filesize"
     line: "upload_max_filesize = 50M"
@@ -37,7 +37,7 @@
   notify: reload php
 
 - name: Set PHP post max filesize
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^post_max_size"
     line: "post_max_size = 50M"

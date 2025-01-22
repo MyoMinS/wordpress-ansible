@@ -2,13 +2,12 @@
   ansible.builtin.service:
     name: apache2
     state: stopped
-    enabled: no
+    enabled: false
 
 - name: Uninstall Apache
   ansible.builtin.apt:
     name: "{{ item }}"
     state: absent
-    update_cache: yes
   with_items:
     - apache2
     - apache2-data
