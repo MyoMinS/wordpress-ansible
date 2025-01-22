@@ -3,13 +3,13 @@
   ansible.builtin.apt_repository:
     repo: ppa:ondrej/php
 
-- name: Install PHP and extensions
+- name: Install PHP
   ansible.builtin.apt:
     name: "php{{ php_version }}"
     state: present
     update_cache: true
 
-- name: Install PHP and extensions
+- name: Install PHP extensions
   ansible.builtin.apt:
     name: "php{{ php_version }}-{{ item }}"
     state: present
