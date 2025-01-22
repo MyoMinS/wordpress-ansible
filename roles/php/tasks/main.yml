@@ -34,7 +34,7 @@
     regexp: "^upload_max_filesize"
     line: "upload_max_filesize = 50M"
     state: present
-  notify: reload php
+  notify: Reload php
 
 - name: Set PHP post max filesize
   ansible.builtin.lineinfile:
@@ -42,4 +42,4 @@
     regexp: "^post_max_size"
     line: "post_max_size = 50M"
     state: present
-  notify: reload php
+  notify: Reload php
