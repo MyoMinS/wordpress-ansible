@@ -19,10 +19,10 @@
     src: "/etc/nginx/sites-available/{{ nginx_conf }}"
     dest: "/etc/nginx/sites-enabled/{{ nginx_conf }}"
     state: link
-  notify: reload nginx
+  notify: Restart nginx
 
 - name: Remove default site
   ansible.builtin.file:
     path: "/etc/nginx/sites-enabled/default"
     state: absent
-  notify: Reload nginx
+  notify: Restart nginx
