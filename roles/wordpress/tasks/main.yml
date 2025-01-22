@@ -26,7 +26,7 @@
     recurse: true
 
 - name: Create wp-config.php
-  ansible.builtin.templatefile:
+  ansible.builtin.template:
     src: wp-config.php.j2
     dest: "{{ wordpress_dir }}/wp-config.php"
     owner: www-data
