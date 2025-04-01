@@ -5,6 +5,7 @@ define('DB_PASSWORD', '{{ mysql_wordpress_password }}');
 define('DB_HOST', 'localhost');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
+
 define( 'AUTH_KEY',         '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
 define( 'SECURE_AUTH_KEY',  '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
 define( 'LOGGED_IN_KEY',    '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
@@ -13,9 +14,16 @@ define( 'AUTH_SALT',        '{{ lookup('password', '/dev/null chars=ascii_letter
 define( 'SECURE_AUTH_SALT', '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
 define( 'LOGGED_IN_SALT',   '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
 define( 'NONCE_SALT',       '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
+
 $table_prefix = 'wp_';
+
+if (strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)
+    $_SERVER['HTTPS']='on';
+    
 define('WP_DEBUG', false);
+
 if ( !defined('ABSPATH') )
     define('ABSPATH', dirname(__FILE__) . '/');
+    
 require_once(ABSPATH . 'wp-settings.php');
-?>
+
