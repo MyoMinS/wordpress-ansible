@@ -32,7 +32,7 @@
   ansible.builtin.lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^upload_max_filesize"
-    line: "upload_max_filesize = 50M"
+    line: "upload_max_filesize = 512M"
     state: present
   notify: Reload php
 
@@ -40,6 +40,6 @@
   ansible.builtin.lineinfile:
     dest: /etc/php/{{ php_version }}/fpm/php.ini
     regexp: "^post_max_size"
-    line: "post_max_size = 50M"
+    line: "post_max_size = 512M"
     state: present
   notify: Reload php
