@@ -17,9 +17,12 @@ define( 'NONCE_SALT',       '{{ lookup('password', '/dev/null chars=ascii_letter
 
 $table_prefix = 'wp_';
 
-if (strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)
-    $_SERVER['HTTPS']='on';
-    
+##if (strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)
+##    $_SERVER['HTTPS']='on';
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
 define('WP_DEBUG', false);
 
 if ( !defined('ABSPATH') )
