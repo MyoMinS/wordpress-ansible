@@ -1,3 +1,7 @@
+# Rate limiting
+limit_req_zone $binary_remote_addr zone=wp_login:10m rate=1r/s;
+limit_req_zone $binary_remote_addr zone=wp_admin:10m rate=5r/s;
+
 server {
         listen {{ nginx_port }};
         root {{ wordpress_dir }};
@@ -5,7 +9,12 @@ server {
         server_name {{ domain_name }};
         client_max_body_size 512M;
 
-         # Hardening
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+
+        # Hardening
         add_header X-Frame-Options "SAMEORIGIN";
         add_header X-XSS-Protection "1; mode=block";
         add_header X-Content-Type-Options nosniff;
@@ -28,10 +37,13 @@ server {
         }
 
         location ~ \.php$ {
+                try_files $uri =404;
+                fastcgi_split_path_info ^(.+\.php)(/.+)$;
                 fastcgi_index index.php;
                 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
                 include fastcgi_params;
                 fastcgi_pass unix:/var/run/php/php{{ php_version }}-fpm.sock;
+                fastcgi_read_timeout 300;
         }
 
         location = /favicon.ico {
@@ -43,8 +55,39 @@ server {
                 log_not_found off;
                 access_log off;
         }
+        # WordPress security
+        location ~ /\. {
+                deny all;
+        }
+
+        location ~* /(?:uploads|files)/.*\.php$ {
+                deny all;
+        }
+
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+        }
+
+        location = /xmlrpc.php {
+                deny all;
+        }
+
+        # Rate limit login attempts
+        location ~ ^/(wp-login\.php|wp-admin/) {
+                limit_req zone=wp_login burst=3 nodelay;
+                try_files $uri $uri/ /index.php?$args;
+        }
+
+        # Block common exploit attempts
+        location ~* /(wp-config\.php|readme\.html|license\.txt) {
+                deny all;
+        }
+
         location /status {
-        stub_status;
+                stub_status;
+                allow 127.0.0.1;
+                deny all;
         }
 
 }

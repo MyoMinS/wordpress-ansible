@@ -2,31 +2,37 @@
 - name: Add PHP repo
   ansible.builtin.apt_repository:
     repo: ppa:ondrej/php
+    state: present
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
 
 - name: Install PHP
   ansible.builtin.apt:
     name: "php{{ php_version }}"
     state: present
-    update_cache: true
 
 - name: Install PHP extensions
   ansible.builtin.apt:
-    name: "php{{ php_version }}-{{ item }}"
+    name: "{{ php_extensions }}"
     state: present
-    update_cache: true
-  with_items:
-    - "bcmath"
-    - "cli"
-    - "common"
-    - "curl"
-    - "fpm"
-    - "gd"
-    - "intl"
-    - "imagick"
-    - "mbstring"
-    - "mysql"
-    - "xml"
-    - "zip"
+  vars:
+    php_extensions:
+      - "php{{ php_version }}-bcmath"
+      - "php{{ php_version }}-cli"
+      - "php{{ php_version }}-common"
+      - "php{{ php_version }}-curl"
+      - "php{{ php_version }}-fpm"
+      - "php{{ php_version }}-gd"
+      - "php{{ php_version }}-intl"
+      - "php{{ php_version }}-imagick"
+      - "php{{ php_version }}-mbstring"
+      - "php{{ php_version }}-mysql"
+      - "php{{ php_version }}-xml"
+      - "php{{ php_version }}-zip"
+      - "php{{ php_version }}-opcache"
 
 - name: Set PHP upload max filesize
   ansible.builtin.lineinfile:
@@ -43,3 +49,35 @@
     line: "post_max_size = 512M"
     state: present
   notify: Reload php
+
+- name: Configure PHP security settings
+  ansible.builtin.lineinfile:
+    dest: /etc/php/{{ php_version }}/fpm/php.ini
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: "^expose_php", line: "expose_php = Off" }
+    - { regexp: "^max_execution_time", line: "max_execution_time = 300" }
+    - { regexp: "^memory_limit", line: "memory_limit = 256M" }
+    - { regexp: "^max_input_vars", line: "max_input_vars = 3000" }
+  notify: Reload php
+
+- name: Configure PHP-FPM pool
+  ansible.builtin.lineinfile:
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: "^pm.max_children", line: "pm.max_children = 50" }
+    - { regexp: "^pm.start_servers", line: "pm.start_servers = 5" }
+    - { regexp: "^pm.min_spare_servers", line: "pm.min_spare_servers = 5" }
+    - { regexp: "^pm.max_spare_servers", line: "pm.max_spare_servers = 35" }
+  notify: Reload php
+
+- name: Ensure PHP-FPM is started and enabled
+  ansible.builtin.systemd:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: true

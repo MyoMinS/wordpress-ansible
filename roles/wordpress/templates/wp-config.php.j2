@@ -3,17 +3,17 @@ define('DB_NAME', '{{ mysql_wordpress_db }}');
 define('DB_USER', '{{ mysql_wordpress_user }}');
 define('DB_PASSWORD', '{{ mysql_wordpress_password }}');
 define('DB_HOST', 'localhost');
-define('DB_CHARSET', 'utf8');
+define('DB_CHARSET', 'utf8mb4');
 define('DB_COLLATE', '');
 
-define( 'AUTH_KEY',         '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'SECURE_AUTH_KEY',  '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'LOGGED_IN_KEY',    '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'NONCE_KEY',        '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'AUTH_SALT',        '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'SECURE_AUTH_SALT', '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'LOGGED_IN_SALT',   '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
-define( 'NONCE_SALT',       '{{ lookup('password', '/dev/null chars=ascii_letters length=64') }}' );
+define( 'AUTH_KEY',         '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'SECURE_AUTH_KEY',  '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'LOGGED_IN_KEY',    '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'NONCE_KEY',        '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'AUTH_SALT',        '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'SECURE_AUTH_SALT', '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'LOGGED_IN_SALT',   '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
+define( 'NONCE_SALT',       '{{ lookup('password', '/dev/null chars=ascii_letters,digits,punctuation length=64') }}' );
 
 $table_prefix = 'wp_';
 
@@ -23,10 +23,33 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
     $_SERVER['HTTPS'] = 'on';
 }
 
-define('WP_DEBUG', false);
+// Security hardening
+define('DISALLOW_FILE_EDIT', true);
+define('DISALLOW_FILE_MODS', true);
+define('FORCE_SSL_ADMIN', false);
+define('WP_POST_REVISIONS', 3);
+define('AUTOSAVE_INTERVAL', 300);
+define('WP_MEMORY_LIMIT', '256M');
+
+// Environment-specific debug
+define('WP_DEBUG', {{ wordpress_debug | default('false') }});
+define('WP_DEBUG_LOG', {{ wordpress_debug | default('false') }});
+define('WP_DEBUG_DISPLAY', false);
+define('SCRIPT_DEBUG', {{ wordpress_debug | default('false') }});
+
+// Cache and performance
+define('WP_CACHE', false);
+define('COMPRESS_CSS', true);
+define('COMPRESS_SCRIPTS', true);
+define('CONCATENATE_SCRIPTS', false);
+
+// Security constants
+define('AUTOMATIC_UPDATER_DISABLED', true);
+define('WP_AUTO_UPDATE_CORE', false);
+ini_set('log_errors', 'On');
+ini_set('display_errors', 'Off');
 
 if ( !defined('ABSPATH') )
     define('ABSPATH', dirname(__FILE__) . '/');
-    
-require_once(ABSPATH . 'wp-settings.php');
 
+require_once(ABSPATH . 'wp-settings.php');

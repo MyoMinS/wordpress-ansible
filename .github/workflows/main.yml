@@ -13,39 +13,95 @@ env:
     WORDPRESS_PASSWORD : ${{ vars.WORDPRESS_PASSWORD }}
 
 on:
-   workflow_dispatch:
+  push:
+    branches: [ "main", "uat" ]
+  workflow_dispatch:
 
 jobs:
     deploy:
         runs-on: ubuntu-latest
+        timeout-minutes: 30
+        environment: ${{ github.ref_name == 'main' && 'production' || 'uat' }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-            
-            - name: Create SSH key
-              run: |
-                echo "$SSH_PRIVATE_KEY" > private.key
-                sudo chmod 400 private.key
-            
+
+            - name: Cache Ansible collections
+              uses: actions/cache@v3
+              with:
+                path: ~/.ansible
+                key: ansible-${{ hashFiles('requirements.yml') }}
+                restore-keys: ansible-
+
             - name: Setup Ansible
               run: |
                 sudo apt-get update
-                sudo apt-get install -y ansible
-            
+                sudo apt-get install -y ansible sshpass
+                ansible-galaxy collection install community.mysql
+
+            - name: Validate environment variables
+              run: |
+                if [[ -z "$SSH_HOST" || -z "$SSH_USER" || -z "$DOMAIN_NAME" ]]; then
+                  echo "Missing required environment variables"
+                  exit 1
+                fi
+
+            - name: Create SSH key
+              run: |
+                mkdir -p ~/.ssh
+                echo "$SSH_PRIVATE_KEY" > ~/.ssh/private.key
+                chmod 600 ~/.ssh/private.key
+                ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+
+            - name: Test SSH connection
+              run: |
+                ssh -i ~/.ssh/private.key -o ConnectTimeout=10 $SSH_USER@$SSH_HOST "echo 'SSH connection successful'"
+
             - name: Create Inventory file
               run: |
-                echo "server ansible_host=$SSH_HOST ansible_user=$SSH_USER ansible_ssh_private_key_file=private.key" > inventory
-            
+                cat > inventory << EOF
+                [servers]
+                server ansible_host=$SSH_HOST ansible_user=$SSH_USER ansible_ssh_private_key_file=~/.ssh/private.key
+                EOF
+
+            - name: Syntax check
+              run: |
+                ansible-playbook --syntax-check -i inventory wordpress.yml
+
+            - name: Set environment variables
+              run: |
+                if [[ "${{ github.ref_name }}" == "main" ]]; then
+                  echo "ENVIRONMENT=production" >> $GITHUB_ENV
+                  echo "DEBUG_MODE=false" >> $GITHUB_ENV
+                else
+                  echo "ENVIRONMENT=uat" >> $GITHUB_ENV
+                  echo "DEBUG_MODE=true" >> $GITHUB_ENV
+                fi
+
             - name: Deploy with Ansible
               run: |
                 ansible-playbook -i inventory \
-                --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" \
                 --extra-vars "nginx_port=$NGINX_PORT" \
                 --extra-vars "domain_name=$DOMAIN_NAME" \
                 --extra-vars "php_version=$PHP_VERSION" \
                 --extra-vars "mysql_wordpress_db=$WORDPRESS_DB" \
                 --extra-vars "mysql_wordpress_user=$WORDPRESS_USER" \
                 --extra-vars "mysql_wordpress_password=$WORDPRESS_PASSWORD" \
-                wordpress.yml
+                --extra-vars "wordpress_debug=$DEBUG_MODE" \
+                --extra-vars "environment=$ENVIRONMENT" \
+                -v wordpress.yml
 
-            
+            - name: Verify deployment
+              run: |
+                sleep 30
+                curl -f -s -o /dev/null http://$SSH_HOST:$NGINX_PORT || {
+                  echo "Deployment verification failed"
+                  exit 1
+                }
+                echo "Deployment verified successfully"
+
+            - name: Cleanup
+              if: always()
+              run: |
+                rm -f ~/.ssh/private.key
+                rm -f inventory

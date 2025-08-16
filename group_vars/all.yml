@@ -2,3 +2,4 @@ wordpress_url: "https://wordpress.org/latest.tar.gz"
 wordpress_dir: "/var/www/html/wordpress"
 server_admin_email: "admin@example.com"
 nginx_conf : "wordpress"
+wordpress_debug: true

@@ -8,13 +8,19 @@
     url: "{{ wordpress_url }}"
     dest: /tmp/latest.tar.gz
     mode: "0755"
-  when: st.state.islnk is not defined
+  when: st.stat.exists is not defined or not st.stat.exists
+
+- name: Check if WordPress is already extracted
+  ansible.builtin.stat:
+    path: "{{ wordpress_dir }}/wp-config-sample.php"
+  register: wp_extracted
 
 - name: Extract WordPress
   ansible.builtin.unarchive:
     src: /tmp/latest.tar.gz
     dest: /var/www/html/
-    remote_src: true
+    remote_src:
+  when: not wp_extracted.stat.exists
 
 - name: Set permissions
   ansible.builtin.file:

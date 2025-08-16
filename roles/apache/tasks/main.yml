@@ -1,14 +1,50 @@
-- name: Ensure Apache is not running
+- name: Check if Apache is installed
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Stop Apache service if running
   ansible.builtin.service:
     name: apache2
     state: stopped
     enabled: false
+  when: "'apache2' in ansible_facts.packages"
+  ignore_errors: true
 
-- name: Uninstall Apache
+- name: Remove Apache packages
   ansible.builtin.apt:
-    name: "{{ item }}"
+    name: "{{ apache_packages }}"
     state: absent
-  with_items:
-    - apache2
-    - apache2-data
-    - apache2-utils
+    purge: true
+    autoremove: true
+  vars:
+    apache_packages:
+      - apache2
+      - apache2-bin
+      - apache2-data
+      - apache2-utils
+      - libapache2-mod-php*
+  when: "'apache2' in ansible_facts.packages"
+
+- name: Remove Apache configuration files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apache2
+    - /var/log/apache2
+    - /var/www/html/index.html
+  ignore_errors: true
+
+- name: Kill any remaining Apache processes
+  ansible.builtin.shell: |
+    pkill -f apache2 || true
+    pkill -f httpd || true
+  changed_when: false
+  ignore_errors: true
+
+- name: Verify Apache is completely removed
+  ansible.builtin.command: which apache2
+  register: apache_check
+  failed_when: apache_check.rc == 0
+  changed_when: false
+  ignore_errors: true
