@@ -1,18 +1,33 @@
 ---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
 - name: Install Nginx
   ansible.builtin.apt:
-    name: "{{ item }}"
+    name: nginx
     state: present
-    update_cache: true
-  with_items:
-    - nginx
 
-- name: Set Nginx conf file
+- name: Test nginx configuration
+  ansible.builtin.command: nginx -t
+  register: nginx_syntax
+  changed_when: false
+  failed_when: nginx_syntax.rc != 0
+
+- name: Set Nginx site configuration
   ansible.builtin.template:
     src: nginx.conf.j2
     dest: "/etc/nginx/sites-available/{{ nginx_conf }}"
-    mode: "0755"
+    mode: "0644"
+    backup: true
+  notify: Restart nginx
 
+- name: Remove default site
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+  notify: Restart nginx
 
 - name: Enable new site
   ansible.builtin.file:
@@ -21,8 +36,18 @@
     state: link
   notify: Restart nginx
 
-- name: Remove default site
-  ansible.builtin.file:
-    path: "/etc/nginx/sites-enabled/default"
-    state: absent
-  notify: Restart nginx
+- name: Ensure nginx is started and enabled
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Verify nginx is running
+  ansible.builtin.uri:
+    url: "http://localhost:{{ nginx_port }}/status"
+    method: GET
+    status_code: 200
+  retries: 3
+  delay: 5
+  ignore_errors: true

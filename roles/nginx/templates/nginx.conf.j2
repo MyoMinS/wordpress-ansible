@@ -14,11 +14,12 @@ server {
         gzip_vary on;
         gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
 
-        # Hardening
-        add_header X-Frame-Options "SAMEORIGIN";
-        add_header X-XSS-Protection "1; mode=block";
-        add_header X-Content-Type-Options nosniff;
-        add_header Allow "GET, POST, HEAD" always;
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 
         # Remove the server header
         server_tokens off;
@@ -55,22 +56,32 @@ server {
                 log_not_found off;
                 access_log off;
         }
-        # WordPress security
+
+        # Block hidden files
         location ~ /\. {
-                deny all;
+            deny all;
         }
 
+        # Block PHP in uploads
         location ~* /(?:uploads|files)/.*\.php$ {
-                deny all;
+            deny all;
         }
 
-        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-                expires 1y;
-                add_header Cache-Control "public, immutable";
-        }
-
+        # Block XML-RPC (common attack vector)
         location = /xmlrpc.php {
                 deny all;
+        }
+
+        # Block WordPress sensitive files
+        location ~* /(wp-config\.php|readme\.html|license\.txt|install\.php) {
+                deny all;
+        }
+
+        # Static asset caching
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                expires 1y;
+                add_header Cache-Control "public, immutable" always;
+                access_log off;
         }
 
         # Rate limit login attempts
@@ -79,8 +90,8 @@ server {
                 try_files $uri $uri/ /index.php?$args;
         }
 
-        # Block common exploit attempts
-        location ~* /(wp-config\.php|readme\.html|license\.txt) {
+        # Block wp-content access to PHP files
+        location ~* ^/wp-content/.*\.(php|phtml)$ {
                 deny all;
         }
 

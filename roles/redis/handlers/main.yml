@@ -1,0 +1,10 @@
+---
+- name: Restart redis
+  ansible.builtin.systemd:
+    name: redis-server
+    state: restarted
+
+- name: Reload php
+  ansible.builtin.systemd:
+    name: "php{{ php_version }}-fpm"
+    state: reloaded

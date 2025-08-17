@@ -1,0 +1,28 @@
+---
+- name: Install Redis
+  ansible.builtin.apt:
+    name: redis-server
+    state: present
+    update_cache: true
+
+- name: Configure Redis
+  ansible.builtin.lineinfile:
+    dest: /etc/redis/redis.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: "^maxmemory", line: "maxmemory 256mb" }
+    - { regexp: "^maxmemory-policy", line: "maxmemory-policy allkeys-lru" }
+  notify: Restart redis
+
+- name: Install PHP Redis extension
+  ansible.builtin.apt:
+    name: "php{{ php_version }}-redis"
+    state: present
+  notify: Reload php
+
+- name: Start and enable Redis
+  ansible.builtin.systemd:
+    name: redis-server
+    state: started
+    enabled: true

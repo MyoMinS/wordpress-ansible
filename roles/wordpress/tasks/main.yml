@@ -1,26 +1,39 @@
-- name: Latest.tar.gz File exit or not
+- name: Check if WordPress archive exists
   ansible.builtin.stat:
     path: /tmp/latest.tar.gz
-  register: st
+  register: wp_archive
 
 - name: Download WordPress
   ansible.builtin.get_url:
     url: "{{ wordpress_url }}"
     dest: /tmp/latest.tar.gz
-    mode: "0755"
-  when: st.stat.exists is not defined or not st.stat.exists
+    mode: "0644"
+    timeout: 30
+  when: not wp_archive.stat.exists
+  register: download_result
+  retries: 3
+  delay: 5
 
 - name: Check if WordPress is already extracted
   ansible.builtin.stat:
     path: "{{ wordpress_dir }}/wp-config-sample.php"
   register: wp_extracted
 
+- name: Backup existing WordPress (if exists)
+  ansible.builtin.archive:
+    path: "{{ wordpress_dir }}"
+    dest: "/tmp/wordpress-backup-{{ ansible_date_time.epoch }}.tar.gz"
+  when: wp_extracted.stat.exists
+  ignore_errors: true
+
 - name: Extract WordPress
   ansible.builtin.unarchive:
     src: /tmp/latest.tar.gz
     dest: /var/www/html/
-    remote_src:
-  when: not wp_extracted.stat.exists
+    remote_src: true
+    owner: www-data
+    group: www-data
+  when: not wp_extracted.stat.exists or download_result.changed
 
 - name: Set permissions
   ansible.builtin.file:
@@ -38,3 +51,31 @@
     owner: www-data
     group: www-data
     mode: '0644'
+    backup: true
+
+- name: Verify WordPress installation
+  ansible.builtin.stat:
+    path: "{{ wordpress_dir }}/wp-load.php"
+  register: wp_verify
+  failed_when: not wp_verify.stat.exists
+
+- name: Set secure permissions for wp-config.php
+  ansible.builtin.file:
+    path: "{{ wordpress_dir }}/wp-config.php"
+    mode: '0600'
+    owner: www-data
+    group: www-data
+
+- name: Create uploads directory
+  ansible.builtin.file:
+    path: "{{ wordpress_dir }}/wp-content/uploads"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Clean up temporary files
+  ansible.builtin.file:
+    path: /tmp/latest.tar.gz
+    state: absent
+  when: download_result.changed is defined
