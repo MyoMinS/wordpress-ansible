@@ -45,7 +45,7 @@
 
 - name: Verify nginx is running
   ansible.builtin.uri:
-    url: "http://localhost:{{ nginx_port }}/status"
+    url: "http://localhost:{{ nginx_port }} "
     method: GET
     status_code: 200
   retries: 3
