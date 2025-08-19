@@ -23,7 +23,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 }
 
 // Security hardening
-define('DISALLOW_FILE_EDIT', true);
+#define('DISALLOW_FILE_EDIT', true);
 #define('DISALLOW_FILE_MODS', true);
 define('FORCE_SSL_ADMIN', {{ 'true' if environment == 'production' else 'false' }});
 define('WP_POST_REVISIONS', 3);
