@@ -70,10 +70,10 @@
     line: "{{ item.line }}"
     state: present
   loop:
-    - { regexp: "^pm.max_children", line: "pm.max_children = 50" }
+    - { regexp: "^pm.max_children", line: "pm.max_children = 25" }
     - { regexp: "^pm.start_servers", line: "pm.start_servers = 5" }
-    - { regexp: "^pm.min_spare_servers", line: "pm.min_spare_servers = 5" }
-    - { regexp: "^pm.max_spare_servers", line: "pm.max_spare_servers = 35" }
+    - { regexp: "^pm.min_spare_servers", line: "pm.min_spare_servers = 3" }
+    - { regexp: "^pm.max_spare_servers", line: "pm.max_spare_servers = 10" }
   notify: Reload php
 
 - name: Ensure PHP-FPM is started and enabled

@@ -25,28 +25,22 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 // Security hardening
 #define('DISALLOW_FILE_EDIT', true);
 #define('DISALLOW_FILE_MODS', true);
-define('FORCE_SSL_ADMIN', {{ 'true' if environment == 'production' else 'false' }});
+#define('FORCE_SSL_ADMIN', true);
 define('WP_POST_REVISIONS', 3);
 define('AUTOSAVE_INTERVAL', 300);
 define('WP_MEMORY_LIMIT', '256M');
 
 // Environment-specific debug
-define('WP_DEBUG', {{ wordpress_debug | default('false') }});
-define('WP_DEBUG_LOG', {{ wordpress_debug | default('false') }});
-define('WP_DEBUG_DISPLAY', false);
-define('SCRIPT_DEBUG', {{ wordpress_debug | default('false') }});
-
-// Redis configuration
-define('WP_REDIS_HOST', '127.0.0.1');
-define('WP_REDIS_PORT', 6379);
-define('WP_REDIS_TIMEOUT', 1);
-define('WP_REDIS_DATABASE', 0);
+#define('WP_DEBUG', false);
+#define('WP_DEBUG_LOG', false);
+#define('WP_DEBUG_DISPLAY', false);
+#define('SCRIPT_DEBUG', false);
 
 // Cache and performance
 define('WP_CACHE', true);
 define('COMPRESS_CSS', true);
 define('COMPRESS_SCRIPTS', true);
-define('CONCATENATE_SCRIPTS', {{ 'true' if environment == 'production' else 'false' }});
+define('CONCATENATE_SCRIPTS', true);
 define('EMPTY_TRASH_DAYS', 7);
 define('WP_CRON_LOCK_TIMEOUT', 60);
 
@@ -54,7 +48,7 @@ define('WP_CRON_LOCK_TIMEOUT', 60);
 define('AUTOMATIC_UPDATER_DISABLED', true);
 define('WP_AUTO_UPDATE_CORE', false);
 define('DISALLOW_UNFILTERED_HTML', true);
-define('WP_HTTP_BLOCK_EXTERNAL', {{ 'true' if environment == 'production' else 'false' }});
+define('WP_HTTP_BLOCK_EXTERNAL', true);
 ini_set('log_errors', 'On');
 ini_set('display_errors', 'Off');
 

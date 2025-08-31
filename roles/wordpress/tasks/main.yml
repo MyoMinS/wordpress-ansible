@@ -20,11 +20,12 @@
   register: wp_extracted
 
 - name: Backup existing WordPress (if exists)
-  ansible.builtin.archive:
+  community.general.archive:
     path: "{{ wordpress_dir }}"
     dest: "/tmp/wordpress-backup-{{ ansible_date_time.epoch }}.tar.gz"
+    mode: "0600"
   when: wp_extracted.stat.exists
-  ignore_errors: true
+  ignore_errors: "{{ ansible_check_mode }}" # <- Ignores errors in check mode.
 
 - name: Extract WordPress
   ansible.builtin.unarchive:
@@ -33,7 +34,7 @@
     remote_src: true
     owner: www-data
     group: www-data
-  when: not wp_extracted.stat.exists or download_result.changed
+  when: not wp_extracted.stat.exists or (download_result is defined and download_result.changed)
 
 - name: Set permissions
   ansible.builtin.file:
@@ -78,4 +79,4 @@
   ansible.builtin.file:
     path: /tmp/latest.tar.gz
     state: absent
-  when: download_result.changed is defined
+  when: download_result is defined and download_result.changed
