@@ -37,10 +37,9 @@
 
 - name: Kill any remaining Apache processes
   ansible.builtin.shell: |
-    pkill -f apache2 || true
-    pkill -f httpd || true
+    pgrep -f apache2 >/dev/null && pkill -f apache2 || true
   changed_when: false
-  ignore_errors: "{{ ansible_check_mode }}"
+  failed_when: false
 
 - name: Verify Apache is completely removed
   ansible.builtin.command: which apache2
